@@ -1,0 +1,60 @@
+---
+title: "A Nonsensical Flex Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+# Load packages and initialize data here
+library(flexdashboard)
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Network Graph
+
+```{r}
+library(networkD3)
+data(MisLinks); data(MisNodes)
+forceNetwork(Links = MisLinks, Nodes = MisNodes,
+            Source = "source", Target = "target",
+            Value = "value", NodeID = "name",
+            Group = "group", opacity = 0.8)
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### plotly scatterplot
+
+```{r}
+library(devtools)
+library(plotly)
+
+source_url("http://bit.ly/OTWEGS")
+
+# Create data with no missing values of infant mortality
+InfantNoMiss <- subset(MortalityGDP,
+                           !is.na(InfantMortality))
+
+# Create High/Low Income Variable
+InfantNoMiss$DumMort[InfantNoMiss$InfantMortality
+                     >= 15] <- "high"
+InfantNoMiss$DumMort[InfantNoMiss$InfantMortality
+                     < 15] <- "low"
+
+plot_ly(MortalityGDP, x = InfantMortality, y = GDPperCapita,
+        mode = 'markers')
+```
+
+### Time series plot
+
+```{r}
+library(dygraphs)
+lungDeaths <- cbind(mdeaths, fdeaths)
+dygraph(lungDeaths) %>% dyRangeSelector()
+```
+
